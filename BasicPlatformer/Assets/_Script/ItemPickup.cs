@@ -10,9 +10,8 @@ public class ItemPickup : MonoBehaviour
 	// Use this for initialization
 	void Start () 
 	{
-		FeedbackPrefab = GameObject.Find("ItemFeedback");
 		CherryBod = GetComponent<Rigidbody2D>();
-		self = GameObject.Find("Cherry");
+        self = this.gameObject;
 	}
 	
 	// Update is called once per frame
@@ -24,7 +23,7 @@ public class ItemPickup : MonoBehaviour
 	void OnCollisionEnter2D(Collision2D other)
 	{
 		Vector3 CherryPos = CherryBod.position;
-		//Instantiate (FeedbackPrefab, CherryPos, Quaternion.identity);
+        Instantiate(FeedbackPrefab, CherryPos, Quaternion.identity);
 		Destroy(self);
 	}
 }
