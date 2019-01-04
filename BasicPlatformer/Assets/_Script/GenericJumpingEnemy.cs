@@ -63,7 +63,7 @@ public class GenericJumpingEnemy : MonoBehaviour
 
             if (WaitFor <= 0f)
             {
-                moveSpeed = 3;
+                moveSpeed = SpeedStore;
                 WaitFor = 1f;
                 IsGrounded = false;
 

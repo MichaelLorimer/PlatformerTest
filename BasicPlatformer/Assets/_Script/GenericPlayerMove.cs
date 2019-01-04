@@ -34,13 +34,20 @@ public class GenericPlayerMove : MonoBehaviour
 
 	public float moveSpeed;			    //Players move speed (Set in Inspector)
 	public float JumpHeight;		    //Players JumpHeight (Set in Inspector)
+    public float TempGravityScale;      //Players falling gtravity scale (set in inpector)
+    public float MaxJumpHeight;
+    public float JumpTime;
+    private float SpeedStore;
 
     //-- Player Bools --
     // - Store Player Specific bools EG: Facing status, has jumped, current state, is living
     //
 
-	public bool FaceRight = true;       //Check if Player is facing right (Change True/ False dependant on circumstance)
+    public bool FaceRight = true;       //Check if Player is facing right (Change True/ False dependant on circumstance)
 	public bool isGrounded;             //Check if the Player is grounded to prevent infinate jumping 
+    public bool Falling;
+
+    public float Velocity; // test var
 
     //Initiasise variables on startup of application
 	void Start () 
@@ -50,11 +57,11 @@ public class GenericPlayerMove : MonoBehaviour
 
 		PlayerRB = GetComponent<Rigidbody2D> ();     //Get the Players RigidBody Component
 		PlayerAnimator = GetComponent<Animator> ();  //Get the Players Animator Component
-
+        SpeedStore = moveSpeed;
         // Initialised variables
         //
 
-		isGrounded = false;                          //Initialised to false because the player in this build starts in the air 
+        isGrounded = false;                          //Initialised to false because the player in this build starts in the air 
 	}
 
     //Fixed update should be used for physics, it has its own update loop/ time? -------------- Fill out more -------------------------
@@ -65,9 +72,10 @@ public class GenericPlayerMove : MonoBehaviour
 	// Update is called once per frame
 	void Update () 
 	{
-		//-- Keyboard Controlls --
+        //-- Keyboard Controlls --
         // -- Get the users Keyboard input and decide what to do with it 
         //
+        Velocity = PlayerRB.velocity.y;
 
 		// -- Move Left
 		if (Input.GetKey (KeyCode.A)) 
@@ -95,39 +103,62 @@ public class GenericPlayerMove : MonoBehaviour
             PlayerAnimator.SetBool ("Moving", true);   //Transition to Correct animation
         }
 
+        // Add Momentum to movements plox
+
         // -- Crouch 
 		if (Input.GetKey (KeyCode.S)) 
 		{
-			moveSpeed = 0f;                           //While crouching movement is stopped = 0;
+            moveSpeed = 0f;                           //While crouching movement is stopped = 0;
 			ResetAnimationBools ();                   //Reset the animation bools for the next transition  
             PlayerAnimator.SetBool ("Crouch", true);        //Transition to Correct animation
         } 
 		else if (Input.GetKeyUp (KeyCode.S))         // check for then the "S" key is released to re enable movement
 		{
-			moveSpeed = 3f;                          //Move speed = 3 (Should be set to a variable to preserve data)
+			moveSpeed = SpeedStore;                          //Move speed = 3 (Should be set to a variable to preserve data)
 			ResetAnimationBools ();                  //Reset the animation bools for the next transition  
             PlayerAnimator.SetBool ("Idle", true);         //Transition to Correct animation
         }
 
         // -- Jump
         //Check if the player is grounded to enable jumps
-        if (isGrounded == true)         
+        if (isGrounded == true)
         {
-            //Get the users input and check if it is the Space bar
-			if (Input.GetKey (KeyCode.Space))
-            {
-				PlayerRB.AddForce (new Vector2 (0, JumpHeight)); //Add force to the PlayerRB
-				isGrounded = false;                             //Set grounded to false to dissable infinate jump
 
-				ResetAnimationBools ();                         //Reset the animation bools for the next transition
-                PlayerAnimator.SetBool ("Idle", true);          //Transition to Correct animation
+            //Get the users input and check if it is the Space bar
+            if (Input.GetKey(KeyCode.Space))
+            {
+                JumpTime = 0;
+                Falling = false;
+
+                if (isGrounded == true)
+                {
+                    float jumpAdd = 100f;
+                    //PlayerRB.AddForce (new Vector2 (0, JumpHeight)); //Add force to the PlayerRB
+                    isGrounded = false;                             //Set grounded to false to dissable infinate jump
+
+                    PlayerRB.AddForce(new Vector2(0, JumpHeight += jumpAdd * Time.deltaTime)); //Add force to the PlayerRB)
+
+
+                    ResetAnimationBools();                         //Reset the animation bools for the next transition
+                    PlayerAnimator.SetBool("Idle", true);          //Transition to Correct animation
+                }
             }
-		}
+        }
+
         //Check if the player is not grounded to enable Animation
-        else if (isGrounded == false) 
-		{
-			ResetAnimationBools ();                             //Reset the animation bools for the next transition
-            PlayerAnimator.SetBool ("Jumping", true);                 //Transition to Correct animation
+        else if (isGrounded == false)
+        {
+            ResetAnimationBools();                             //Reset the animation bools for the next transition
+            PlayerAnimator.SetBool("Jumping", true);                 //Transition to Correct animation
+            if (PlayerRB.velocity.y > MaxJumpHeight)
+            { Falling = true; }
+        }
+
+        if (Falling == true)
+        {
+            float UpVelocity = PlayerRB.velocity.y;
+            UpVelocity -= (TempGravityScale * Time.deltaTime);
+            PlayerRB.velocity = new Vector2(PlayerRB.velocity.x, UpVelocity);
         }
         //To Check if the sprite needs to be flipped
         FlipSprite(); 
