@@ -25,7 +25,7 @@ public class GenericPlayerMove : MonoBehaviour
     //
 
 	public Rigidbody2D PlayerRB; 		//Store the players Rigid Body (Set in the Inspector)
-	public Collider2D  PlayerCol;   	//Store the players BoxCollider2D (Set in the Inspector) ---------- NOT SURE IF NEEDED ----------
+	public Collider2D  PlayerGroundCol;   	//Store the players BoxCollider2D (Set in the Inspector) ---------- NOT SURE IF NEEDED ----------
 	public Animator    PlayerAnimator;	//Store the Players Animator for transitions (Set in the Inspector)
 
 	//-- Player Variables --
@@ -36,7 +36,6 @@ public class GenericPlayerMove : MonoBehaviour
 	public float JumpHeight;		    //Players JumpHeight (Set in Inspector)
     public float TempGravityScale;      //Players falling gtravity scale (set in inpector)
     public float MaxJumpHeight;
-    public float JumpTime;
     private float SpeedStore;
 
     //-- Player Bools --
@@ -46,8 +45,6 @@ public class GenericPlayerMove : MonoBehaviour
     public bool FaceRight = true;       //Check if Player is facing right (Change True/ False dependant on circumstance)
 	public bool isGrounded;             //Check if the Player is grounded to prevent infinate jumping 
     public bool Falling;
-
-    public float Velocity; // test var
 
     //Initiasise variables on startup of application
 	void Start () 
@@ -67,6 +64,7 @@ public class GenericPlayerMove : MonoBehaviour
     //Fixed update should be used for physics, it has its own update loop/ time? -------------- Fill out more -------------------------
     void FixedUpdate()
     {
+
     }
 
 	// Update is called once per frame
@@ -75,7 +73,6 @@ public class GenericPlayerMove : MonoBehaviour
         //-- Keyboard Controlls --
         // -- Get the users Keyboard input and decide what to do with it 
         //
-        Velocity = PlayerRB.velocity.y;
 
 		// -- Move Left
 		if (Input.GetKey (KeyCode.A)) 
@@ -121,29 +118,7 @@ public class GenericPlayerMove : MonoBehaviour
 
         // -- Jump
         //Check if the player is grounded to enable jumps
-        if (isGrounded == true)
-        {
-
-            //Get the users input and check if it is the Space bar
-            if (Input.GetKey(KeyCode.Space))
-            {
-                JumpTime = 0;
-                Falling = false;
-
-                if (isGrounded == true)
-                {
-                    float jumpAdd = 100f;
-                    //PlayerRB.AddForce (new Vector2 (0, JumpHeight)); //Add force to the PlayerRB
-                    isGrounded = false;                             //Set grounded to false to dissable infinate jump
-
-                    PlayerRB.AddForce(new Vector2(0, JumpHeight += jumpAdd * Time.deltaTime)); //Add force to the PlayerRB)
-
-
-                    ResetAnimationBools();                         //Reset the animation bools for the next transition
-                    PlayerAnimator.SetBool("Idle", true);          //Transition to Correct animation
-                }
-            }
-        }
+        
 
         //Check if the player is not grounded to enable Animation
         else if (isGrounded == false)
@@ -151,7 +126,9 @@ public class GenericPlayerMove : MonoBehaviour
             ResetAnimationBools();                             //Reset the animation bools for the next transition
             PlayerAnimator.SetBool("Jumping", true);                 //Transition to Correct animation
             if (PlayerRB.velocity.y > MaxJumpHeight)
-            { Falling = true; }
+            {
+                Falling = true;
+            }
         }
 
         if (Falling == true)
@@ -170,22 +147,26 @@ public class GenericPlayerMove : MonoBehaviour
         //If Grounded: 
         //If the Player interacts with the layer 8 the player is grounded
         //Note: "Ground" in the Inspector is Layer 8
-        if (coll.gameObject.layer == 8) 
-		{
-			isGrounded = true;                  //Set isGrounded to true 
-			ResetAnimationBools ();             //Reset the animation bools for the next transition
-            PlayerAnimator.SetBool ("Idle", true);    //Transition to Correct animation
-		} 
-		else 
-		{
-			isGrounded = false;                 //Set isGrounded to true
-            ResetAnimationBools ();             //Reset the animation bools for the next transition
-            PlayerAnimator.SetBool ("Jumping", true); //Transition to Correct animation
+        if (coll.gameObject.layer == 8)
+        {
+            if (coll.gameObject.layer == 8)
+            {
+                ResetAnimationBools();             //Reset the animation bools for the next transition
+                PlayerAnimator.SetBool("Idle", true);    //Transition to Correct animation
+                isGrounded = true;                  //Set isGrounded to true 
+            }
+            else
+            {
+                ResetAnimationBools();             //Reset the animation bools for the next transition
+                PlayerAnimator.SetBool("Jumping", true); //Transition to Correct animation
+                isGrounded = false;                 //Set isGrounded to true
+            }
         }
-	}
+    }
+
 
     //Function to flip sprite around 
-	void FlipSprite()
+    void FlipSprite()
 	{
 		if (FaceRight == true) 
 		{
@@ -198,7 +179,7 @@ public class GenericPlayerMove : MonoBehaviour
 	}
 
     //Inneficient and messy way of making sure the correct bool is active at any time
-	void ResetAnimationBools()
+    void ResetAnimationBools()
 	{
 		PlayerAnimator.SetBool ("Idle", false);
         PlayerAnimator.SetBool ("Jumping", false);
