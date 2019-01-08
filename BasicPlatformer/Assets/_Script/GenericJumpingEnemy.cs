@@ -12,6 +12,7 @@ public class GenericJumpingEnemy : MonoBehaviour
 
     public float moveSpeed;             //Players move speed (Set in Inspector)
     public float JumpHeight;
+    public float MaxHeight;
     public bool FaceRight;       //Check if Player is facing right (Change True/ False dependant on circumstance)
     public bool IsGrounded;
     public bool CanJump;
@@ -80,22 +81,7 @@ public class GenericJumpingEnemy : MonoBehaviour
         }
 
 
-        /*if (FaceRight == true)
-        {
-            Vector2 Pos = EnemyRB.transform.position; //Define new Vectror2 to temperarily store the players position 
-            Pos.x -= moveSpeed * Time.deltaTime;       //Add the new speed to the temp variable (*Time.deltaTime = same movement regardless of FPS)
-            FaceRight = true;                         //Set RaceRight to false to flip the sprite 
-            EnemyRB.transform.position = Pos;         //set the players transform to equal the temp position variable because...
-                                                       //PlayerRB.transform.position cannot be added 
-        }
-        if (FaceRight == false)
-        {
-            Vector2 Pos = EnemyRB.transform.position; //Define new Vectror2 to temperarily store the players position 
-            Pos.x -= moveSpeed * Time.deltaTime;       //Add the new speed to the temp variable (*Time.deltaTime = same movement regardless of FPS)
-            FaceRight = false;                         //Set RaceRight to false to flip the sprite 
-            EnemyRB.transform.position = Pos;         //set the players transform to equal the temp position variable because...
-                                                       //PlayerRB.transform.position cannot be added 
-        }*/
+
         FlipSprite();
     }
 

@@ -7,6 +7,8 @@ public class ItemPickup : MonoBehaviour
 	public GameObject FeedbackPrefab;
 	public GameObject self;
 	public Rigidbody2D CherryBod;
+
+    public static bool test = false;
 	// Use this for initialization
 	void Start () 
 	{
