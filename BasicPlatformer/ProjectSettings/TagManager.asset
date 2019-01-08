@@ -15,9 +15,9 @@ TagManager:
   - UI
   - 
   - 
-  - Floor
+  - Ground
   - pickUp
-  - 
+  - Player
   - 
   - 
   - 

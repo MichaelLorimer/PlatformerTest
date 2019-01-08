@@ -38,6 +38,12 @@ public class GenericPlayerMove : MonoBehaviour
     public float MaxJumpHeight;
     private float SpeedStore;
 
+    public Transform GroundCheck;
+    public Transform GroundCheck2;
+    public Transform GroundCheck3;
+    public Transform GroundCheck4;
+    public Transform GroundCheck5;
+
     //-- Player Bools --
     // - Store Player Specific bools EG: Facing status, has jumped, current state, is living
     //
@@ -64,7 +70,59 @@ public class GenericPlayerMove : MonoBehaviour
     //Fixed update should be used for physics, it has its own update loop/ time? -------------- Fill out more -------------------------
     void FixedUpdate()
     {
+        // Bit Shift index of layer (8) to get a bit mask 
+        int layerMask = 1 << 10;
 
+        //this would cast rays only against collsion in layer 8
+        // BUT instead we want t ocollide against everything but the player layer 
+        layerMask = ~layerMask; // '~' inverts the bit mask
+
+        RaycastHit2D hit;
+        // if ray hits anything that sin the player layer  
+
+
+        // Make this araycast array later on
+       // isGrounded = Physics2D.Linecast(PlayerRB.position, GroundCheck.position, 1 << LayerMask.NameToLayer("Ground"));
+        //isGrounded = Physics2D.Linecast(PlayerRB.position, GroundCheck2.position, 1 << LayerMask.NameToLayer("Ground"));
+        //isGrounded = Physics2D.Linecast(PlayerRB.position, GroundCheck3.position, 1 << LayerMask.NameToLayer("Ground"));
+        //isGrounded = Physics2D.Linecast(PlayerRB.position, GroundCheck4.position, 1 << LayerMask.NameToLayer("Ground"));
+        //isGrounded = Physics2D.Linecast(PlayerRB.position, GroundCheck5.position, 1 << LayerMask.NameToLayer("Ground"));
+
+
+        //if first cast is false, check other casts if all false, not grounded
+        RaycastHit2D[] castArray = new RaycastHit2D[5];
+        RaycastHit2D[] f = Physics2D.RaycastAll(PlayerRB.position, -transform.up, 50f, 1 << LayerMask.NameToLayer("Ground"));
+        for (int i = 0; i < f.Length; i++)
+        {
+            if (f[i].transform != transform && f[i].collider.tag != "Ground")
+            {
+                castArray[0] = f[i];
+                isGrounded = true;
+                Debug.Log("Collsion on: " + castArray[i]);
+            }
+        }
+
+
+        if (isGrounded == true)
+        {
+            ResetAnimationBools();
+            PlayerAnimator.SetBool("Idle", true);
+            Falling = false;
+        }
+        else if (isGrounded == false)
+        {
+            ResetAnimationBools();
+            PlayerAnimator.SetBool("Jumping", true);
+        }
+
+
+        // -- Jump
+        //Check if the player is grounded to enable jumps
+        if (Input.GetKey(KeyCode.Space) && isGrounded == true)
+        {
+            PlayerRB.AddForce(new Vector2(0f, JumpHeight), ForceMode2D.Impulse);
+            isGrounded = false;
+        }
     }
 
 	// Update is called once per frame
@@ -116,8 +174,6 @@ public class GenericPlayerMove : MonoBehaviour
             PlayerAnimator.SetBool ("Idle", true);         //Transition to Correct animation
         }
 
-        // -- Jump
-        //Check if the player is grounded to enable jumps
         
 
         //Check if the player is not grounded to enable Animation
@@ -141,28 +197,7 @@ public class GenericPlayerMove : MonoBehaviour
         FlipSprite(); 
 	}
 
-	//Check if Grounded
-	void OnCollisionStay2D(Collision2D coll) //coll = Other Collider
-	{
-        //If Grounded: 
-        //If the Player interacts with the layer 8 the player is grounded
-        //Note: "Ground" in the Inspector is Layer 8
-        if (coll.gameObject.layer == 8)
-        {
-            if (coll.gameObject.layer == 8)
-            {
-                ResetAnimationBools();             //Reset the animation bools for the next transition
-                PlayerAnimator.SetBool("Idle", true);    //Transition to Correct animation
-                isGrounded = true;                  //Set isGrounded to true 
-            }
-            else
-            {
-                ResetAnimationBools();             //Reset the animation bools for the next transition
-                PlayerAnimator.SetBool("Jumping", true); //Transition to Correct animation
-                isGrounded = false;                 //Set isGrounded to true
-            }
-        }
-    }
+
 
 
     //Function to flip sprite around 
