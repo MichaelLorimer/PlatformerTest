@@ -26,18 +26,20 @@ public class GenericPlayerMove : MonoBehaviour
 
     public Rigidbody2D PlayerRB;        //Store the players Rigid Body (Set in the Inspector)
     public Collider2D PlayerCol;    //Store the players BoxCollider2D (Set in the Inspector) ---------- NOT SURE IF NEEDED ----------
-    public Animator PlayerAnimator; //Store the Players Animator for transitions (Set in the Inspector)
+    public static Animator PlayerAnimator; //Store the Players Animator for transitions (Set in the Inspector)
 
     //-- Player Variables --
     // - Stored Player Specific variables EG: Health, Speed, 
     //
 
     public float moveSpeed;             //Players move speed (Set in Inspector)
+    public float moveSpeedStore;
     public float JumpHeight;            //Players JumpHeight (Set in Inspector)
     public float maxJumpHeight;
+    public float GravityScale;
 
     public bool falling;
-
+    public float velocity = 0;
     //-- Player Bools --
     // - Store Player Specific bools EG: Facing status, has jumped, current state, is living
     //
@@ -56,14 +58,10 @@ public class GenericPlayerMove : MonoBehaviour
 
         // Initialised variables
         //
-
+        moveSpeedStore = moveSpeed;
         isGrounded = false;                          //Initialised to false because the player in this build starts in the air 
     }
 
-    //Fixed update should be used for physics, it has its own update loop/ time? -------------- Fill out more -------------------------
-    void FixedUpdate()
-    {
-    }
 
     // Update is called once per frame
     void Update()
@@ -75,10 +73,10 @@ public class GenericPlayerMove : MonoBehaviour
         // -- Move Left
         if (Input.GetKey(KeyCode.A))
         {
-            Vector2 Pos = PlayerRB.transform.position; //Define new Vectror2 to temperarily store the players position 
-            Pos.x -= moveSpeed * Time.deltaTime;       //Add the new speed to the temp variable (*Time.deltaTime = same movement regardless of FPS)
+            //Vector2 Pos = PlayerRB.transform.position; //Define new Vectror2 to temperarily store the players position 
+            //Pos.x -= moveSpeed * Time.deltaTime;       //Add the new speed to the temp variable (*Time.deltaTime = same movement regardless of FPS)
             FaceRight = false;                         //Set RaceRight to false to flip the sprite 
-            PlayerRB.transform.position = Pos;         //set the players transform to equal the temp position variable because...
+            //PlayerRB.transform.position = Pos;         //set the players transform to equal the temp position variable because...
                                                        //PlayerRB.transform.position cannot be added to
 
             ResetAnimationBools();                    //Reset the animation bools for the next transition  
@@ -88,10 +86,10 @@ public class GenericPlayerMove : MonoBehaviour
         // -- Move Right
         if (Input.GetKey(KeyCode.D))
         {
-            Vector2 Pos = PlayerRB.transform.position; //Define new Vectror2 to temperarily store the players position 
-            Pos.x += moveSpeed * Time.deltaTime;       //Add the new speed to the temp variable (*Time.deltaTime = same movement regardless of FPS)
+            //Vector2 Pos = PlayerRB.transform.position; //Define new Vectror2 to temperarily store the players position 
+            //Pos.x += moveSpeed * Time.deltaTime;       //Add the new speed to the temp variable (*Time.deltaTime = same movement regardless of FPS)
             FaceRight = true;                          //Set RaceRight to True to flip the sprite 
-            PlayerRB.transform.position = Pos;         //set the players transform to equal the temp position variable because...
+            //PlayerRB.transform.position = Pos;         //set the players transform to equal the temp position variable because...
                                                        //PlayerRB.transform.position cannot be added to
 
             ResetAnimationBools();                     //Reset the animation bools for the next transition  
@@ -101,64 +99,109 @@ public class GenericPlayerMove : MonoBehaviour
         // -- Crouch 
         if (Input.GetKey(KeyCode.S))
         {
-            moveSpeed = 0f;                           //While crouching movement is stopped = 0;
+            //float xVel = 0;
+            //PlayerRB.velocity = new Vector2(xVel, PlayerRB.velocity.y);
             ResetAnimationBools();                   //Reset the animation bools for the next transition  
             PlayerAnimator.SetBool("Crouch", true);        //Transition to Correct animation
         }
-        else if (Input.GetKeyUp(KeyCode.S))         // check for then the "S" key is released to re enable movement
+        if (Input.GetKeyUp(KeyCode.S))         // check for then the "S" key is released to re enable movement
         {
-            moveSpeed = 3f;                          //Move speed = 3 (Should be set to a variable to preserve data)
+           // float xVel = 0;
+            //PlayerRB.velocity = new Vector2(xVel, PlayerRB.velocity.y);
+
+            //moveSpeed = moveSpeedStore;                          //Move speed = 3 (Should be set to a variable to preserve data)
             ResetAnimationBools();                  //Reset the animation bools for the next transition  
             PlayerAnimator.SetBool("Idle", true);         //Transition to Correct animation
         }
 
-        // -- Jump
-        //Check if the player is grounded to enable jumps
-        if (isGrounded == true)
-        {
-            //Get the users input and check if it is the Space bar
-            if (Input.GetKey(KeyCode.Space))
-            {
-                PlayerRB.AddForce(new Vector2(0, JumpHeight)); //Add force to the PlayerRB
-                isGrounded = false;                             //Set grounded to false to dissable infinate jump
+        
 
-                ResetAnimationBools();                         //Reset the animation bools for the next transition
-                PlayerAnimator.SetBool("Idle", true);          //Transition to Correct animation
-            }
-        }
+        
         //Check if the player is not grounded to enable Animation
-        else if (isGrounded == false)
+        if (isGrounded == false)
         {
             ResetAnimationBools();                             //Reset the animation bools for the next transition
             PlayerAnimator.SetBool("Jumping", true);                 //Transition to Correct animation
+
+            if (PlayerRB.velocity.y < maxJumpHeight)
+            {
+                falling = true;
+            }
         }
+
         //To Check if the sprite needs to be flipped
         FlipSprite();
 
-        if (PlayerRB.velocity.y > maxJumpHeight)
+        if (falling == true)
         {
-
+            Vector2 newVel = PlayerRB.velocity;
+            newVel.y += GravityScale * Time.deltaTime;
+            PlayerRB.velocity = newVel;
         }
     }
+
+    private void FixedUpdate()
+    {
+        if (Input.GetKey(KeyCode.A))
+        {
+            Vector2 Pos = PlayerRB.transform.position; //Define new Vectror2 to temperarily store the players position 
+            Pos.x -= moveSpeed * Time.deltaTime;       //Add the new speed to the temp variable (*Time.deltaTime = same movement regardless of FPS)
+                                                       //FaceRight = false;                         //Set RaceRight to false to flip the sprite 
+            PlayerRB.transform.position = Pos;         //set the players transform to equal the temp position variable because...
+           // PlayerRB.MovePosition(Pos);                                         //PlayerRB.transform.position cannot be added to
+            
+            //ResetAnimationBools();                    //Reset the animation bools for the next transition  
+            //PlayerAnimator.SetBool("Moving", true);   //Transition t0 Correct animation
+        }
+
+        // -- Move Right
+        if (Input.GetKey(KeyCode.D))
+        {
+            Vector2 Pos = PlayerRB.transform.position; //Define new Vectror2 to temperarily store the players position 
+            Pos.x += moveSpeed * Time.deltaTime;       //Add the new speed to the temp variable (*Time.deltaTime = same movement regardless of FPS)
+                                                       //FaceRight = true;                          //Set RaceRight to True to flip the sprite 
+            PlayerRB.transform.position = Pos;         //set the players transform to equal the temp position variable because...
+            //PlayerRB.MovePosition(Pos);                                          //PlayerRB.transform.position cannot be added to
+
+            //ResetAnimationBools();                     //Reset the animation bools for the next transition  
+            //PlayerAnimator.SetBool("Moving", true);   //Transition to Correct animation
+        }
+
+        // -- Crouch 
+        if (Input.GetKey(KeyCode.S))
+        {
+            float xVel = 0;
+            PlayerRB.velocity = new Vector2(xVel, PlayerRB.velocity.y);
+            //ResetAnimationBools();                   //Reset the animation bools for the next transition  
+            //PlayerAnimator.SetBool("Crouch", true);        //Transition to Correct animation
+        }
+        if (Input.GetKeyUp(KeyCode.S))         // check for then the "S" key is released to re enable movement
+        {
+            float xVel = 0;
+            PlayerRB.velocity = new Vector2(xVel, PlayerRB.velocity.y);
+
+            moveSpeed = moveSpeedStore;                          //Move speed = 3 (Should be set to a variable to preserve data)
+            //ResetAnimationBools();                  //Reset the animation bools for the next transition  
+            //PlayerAnimator.SetBool("Idle", true);         //Transition to Correct animation
+        }
+        //Get the users input and check if it is the Space bar
+        if (Input.GetKey(KeyCode.Space) && isGrounded == true)
+        {
+
+            PlayerRB.AddForce(new Vector2(0f, JumpHeight) * Time.deltaTime, ForceMode2D.Impulse); //Add force to the PlayerRB
+                                                                                                  //isGrounded = false;                             //Set grounded to false to dissable infinate jump
+
+            ResetAnimationBools();                         //Reset the animation bools for the next transition
+            PlayerAnimator.SetBool("Idle", true);          //Transition to Correct animation
+            falling = false;
+        }
+    }
+
 
     //Check if Grounded
     void OnCollisionStay2D(Collision2D coll) //coll = Other Collider
     {
-        //If Grounded: 
-        //If the Player interacts with the layer 8 the player is grounded
-        //Note: "Ground" in the Inspector is Layer 8
-        if (coll.gameObject.layer == 8)
-        {
-            //isGrounded = true;                  //Set isGrounded to true 
-            ResetAnimationBools();             //Reset the animation bools for the next transition
-            PlayerAnimator.SetBool("Idle", true);    //Transition to Correct animation
-        }
-        else
-        {
-            //isGrounded = false;                 //Set isGrounded to true
-            ResetAnimationBools();             //Reset the animation bools for the next transition
-            PlayerAnimator.SetBool("Jumping", true); //Transition to Correct animation
-        }
+        
     }
 
     //Function to flip sprite around 
@@ -175,7 +218,7 @@ public class GenericPlayerMove : MonoBehaviour
     }
 
     //Inneficient and messy way of making sure the correct bool is active at any time
-    void ResetAnimationBools()
+    public static void ResetAnimationBools()
     {
         PlayerAnimator.SetBool("Idle", false);
         PlayerAnimator.SetBool("Jumping", false);
