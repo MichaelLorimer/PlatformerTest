@@ -47,6 +47,7 @@ public class GenericPlayerMove : MonoBehaviour
     public bool FaceRight = true;       //Check if Player is facing right (Change True/ False dependant on circumstance)
     public static bool isGrounded;             //Check if the Player is grounded to prevent infinate jumping 
 
+    
     //Initiasise variables on startup of application
     void Start()
     {
@@ -190,7 +191,6 @@ public class GenericPlayerMove : MonoBehaviour
 
             PlayerRB.AddForce(new Vector2(0f, JumpHeight) * Time.deltaTime, ForceMode2D.Impulse); //Add force to the PlayerRB
                                                                                                   //isGrounded = false;                             //Set grounded to false to dissable infinate jump
-
             ResetAnimationBools();                         //Reset the animation bools for the next transition
             PlayerAnimator.SetBool("Idle", true);          //Transition to Correct animation
             falling = false;

@@ -7,24 +7,24 @@ public class GenericJumpingEnemy : MonoBehaviour
     public float PointA;
     public float PointB;
 
-    public Rigidbody2D EnemyRB;        //Store the players Rigid Body (Set in the Inspector)
-    public Animator EnemyAnimator; //Store the Players Animator for transitions (Set in the Inspector)
+    public Rigidbody2D EnemyRB;        //Store the Enemy Rigid Body (Set in the Inspector)
+    public Animator EnemyAnimator;     //Store the Players Animator for transitions (Set in the Inspector)
 
-    public float moveSpeed;             //Players move speed (Set in Inspector)
-    public float JumpHeight;
-    public float MaxHeight;
-    public bool FaceRight;       //Check if Player is facing right (Change True/ False dependant on circumstance)
-    public bool IsGrounded;
-    public bool CanJump;
+    public float moveSpeed;            //Enemy move speed (Set in Inspector)
+    public float JumpHeight;           //Enemy JumpHeight (Set in Inspector)
+    public float MaxHeight;            //Enemy MaxJumpHeight (Set in Inspector)
+    public bool FaceRight;             //Check if Enemy is facing right (Change True/ False dependant on circumstance)
+    public bool IsGrounded;            //Check if the Enemy is grounded
+    public bool CanJump;               //Check if the Enemy is able to jump
 
-    public float WaitFor = 1f;
+    public float WaitFor = 1f;         //Time to wait inbetween jumps
 
     // Use this for initialization
     void Start()
     {
-        EnemyRB = GetComponent<Rigidbody2D>();     //Get the Players RigidBody Component
-        EnemyAnimator = GetComponent<Animator>();  //Get the Players Animator Component
-        IsGrounded = false;
+        EnemyRB = GetComponent<Rigidbody2D>();     //Get the Enemy RigidBody Component
+        EnemyAnimator = GetComponent<Animator>();  //Get the Enemy Animator Component
+        IsGrounded = false;                        //grounded = false by default
     }
 
     // Update is called once per frame
@@ -33,22 +33,24 @@ public class GenericJumpingEnemy : MonoBehaviour
 
         if (FaceRight == false)
         {
-            Vector2 Pos = EnemyRB.transform.position; //Define new Vectror2 to temperarily store the players position 
-            Pos.x -= moveSpeed * Time.deltaTime;       //Add the new speed to the temp variable (*Time.deltaTime = same movement regardless of FPS)
+            Vector2 Pos = EnemyRB.transform.position; //Define new Vectror2 to temperarily store the Enemy position 
+            Pos.x -= moveSpeed * Time.deltaTime;      //Add the new speed to the temp variable (*Time.deltaTime = same movement regardless of FPS)
             EnemyRB.transform.position = Pos;         //set the players transform to equal the temp position variable because...
                                                       //PlayerRB.transform.position cannot be added 
-            if (EnemyRB.position.x <= PointA)
+
+            if (EnemyRB.position.x <= PointA)         // If enemy reached point A:flip the sprite
             {
                 FaceRight = true;
             }
         }
         if (FaceRight == true)
         {
-            Vector2 Pos = EnemyRB.transform.position; //Define new Vectror2 to temperarily store the players position 
-            Pos.x += moveSpeed * Time.deltaTime;       //Add the new speed to the temp variable (*Time.deltaTime = same movement regardless of FPS)
+            Vector2 Pos = EnemyRB.transform.position; //Define new Vectror2 to temperarily store the enemy position 
+            Pos.x += moveSpeed * Time.deltaTime;      //Add the new speed to the temp variable (*Time.deltaTime = same movement regardless of FPS)
             EnemyRB.transform.position = Pos;         //set the players transform to equal the temp position variable because...
-                                                      //PlayerRB.transform.position cannot be added 
-            if (EnemyRB.position.x >= PointB)
+                                                      //PlayerRB.transform.position cannot be added
+                                                      
+            if (EnemyRB.position.x >= PointB)         // If enemy reached point B:flip the sprite
             {
                 FaceRight = false;
             }
@@ -56,18 +58,17 @@ public class GenericJumpingEnemy : MonoBehaviour
 
         if(IsGrounded == true)
         {
-            float SpeedStore = moveSpeed;
-            CanJump = true;
+            float SpeedStore = moveSpeed;              //Store current speed before editing
+            CanJump = true;                            //Redundant?
 
-            moveSpeed = 0;
-            WaitFor -= Time.deltaTime;
+            moveSpeed = 0;                             //Set speed to 0 to stop the Enemy movement entirely
+            float Countdown = WaitFor;
+            Countdown -= Time.deltaTime;                 //Start countdown time
 
-            if (WaitFor <= 0f)
+            if (Countdown <= 0f)
             {
-                moveSpeed = SpeedStore;
-                WaitFor = 1f;
-                IsGrounded = false;
-
+                moveSpeed = SpeedStore;                //When countdown == 0, Reset movespeed
+                IsGrounded = false;                    //Grounded is false to transition to jump
             }
         }
 

@@ -4,16 +4,16 @@ using UnityEngine;
 
 public class ItemPickup : MonoBehaviour 
 {
-	public GameObject FeedbackPrefab;
-	public GameObject self;
-	public Rigidbody2D CherryBod;
+	public GameObject FeedbackPrefab;          //Store the prefab of the ItemFeedback effect
+	public GameObject self;                    //Store own GameObject for destruction
+	public Rigidbody2D ItemRB;                 //Store own RigidBody2D
 
     public static bool test = false;
 	// Use this for initialization
 	void Start () 
 	{
-		CherryBod = GetComponent<Rigidbody2D>();
-        self = this.gameObject;
+        ItemRB = GetComponent<Rigidbody2D>(); //Cache RigidBody2D
+        self = this.gameObject;               //Cache own GameObject
 	}
 	
 	// Update is called once per frame
@@ -24,8 +24,8 @@ public class ItemPickup : MonoBehaviour
 
 	void OnCollisionEnter2D(Collision2D other)
 	{
-		Vector3 CherryPos = CherryBod.position;
-        Instantiate(FeedbackPrefab, CherryPos, Quaternion.identity);
-		Destroy(self);
+		Vector3 CurrentPos = ItemRB.position;                        //Get Current posiiton to spawn the feedback effect
+        Instantiate(FeedbackPrefab, CurrentPos, Quaternion.identity);//Spawn the feedback effect
+		Destroy(self); //Destroy own GameObject
 	}
 }

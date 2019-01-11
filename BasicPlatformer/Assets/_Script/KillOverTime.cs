@@ -4,13 +4,13 @@ using UnityEngine;
 
 public class KillOverTime : MonoBehaviour
 {
-    GameObject Self;
-    public float LiveFor; //Set Howlong the objectlives in inpector
+    GameObject Self;      //Store Own GameObject
+    public float LiveFor; //Set How long the object lives (in inpector)
 
 	// Use this for initialization
 	void Start ()
     {
-        Self = this.gameObject;
+        Self = this.gameObject; //Cache own gameobject
     }
 	
 	// Update is called once per frame
@@ -18,12 +18,12 @@ public class KillOverTime : MonoBehaviour
     {
         if (LiveFor >= 0f)
         {
-            LiveFor -= Time.deltaTime;
+            LiveFor -= Time.deltaTime; //Start timer until death
         }
 
         if (LiveFor < 0)
         {
-            Destroy(Self);
+            Destroy(Self);             //Destroy own game object
         }
 	}
 }

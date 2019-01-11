@@ -61,6 +61,7 @@
     <Compile Include="Assets\_Script\ItemPickup.cs" />
     <Compile Include="Assets\_Script\KillOverTime.cs" />
     <Compile Include="Assets\_Script\ProjectileScript.cs" />
+    <Compile Include="Assets\_Script\WallWalkEnemy.cs" />
     <Reference Include="Unity.TextMeshPro.Editor">
       <HintPath>C:/Users/mlorimer/Documents/GitHub/PlatformerTest/PlatformerTest/BasicPlatformer/Library/ScriptAssemblies/Unity.TextMeshPro.Editor.dll</HintPath>
     </Reference>
