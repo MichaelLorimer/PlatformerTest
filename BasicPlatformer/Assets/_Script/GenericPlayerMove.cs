@@ -28,6 +28,7 @@ public class GenericPlayerMove : MonoBehaviour
     public Collider2D PlayerCol;    //Store the players BoxCollider2D (Set in the Inspector) ---------- NOT SURE IF NEEDED ----------
     public static Animator PlayerAnimator; //Store the Players Animator for transitions (Set in the Inspector)
 
+    public GameObject temp;
     //-- Player Variables --
     // - Stored Player Specific variables EG: Health, Speed, 
     //
@@ -47,7 +48,10 @@ public class GenericPlayerMove : MonoBehaviour
     public bool FaceRight = true;       //Check if Player is facing right (Change True/ False dependant on circumstance)
     public static bool isGrounded;             //Check if the Player is grounded to prevent infinate jumping 
 
-    
+    //Crouch Code #Variables
+    public static bool Crouching;
+    private Vector2 FullBoxSize;
+
     //Initiasise variables on startup of application
     void Start()
     {
@@ -57,10 +61,15 @@ public class GenericPlayerMove : MonoBehaviour
         PlayerRB = GetComponent<Rigidbody2D>();     //Get the Players RigidBody Component
         PlayerAnimator = GetComponent<Animator>();  //Get the Players Animator Component
 
+        
         // Initialised variables
         //
         moveSpeedStore = moveSpeed;
         isGrounded = false;                          //Initialised to false because the player in this build starts in the air 
+        Crouching = false;
+
+        FullBoxSize = gameObject.GetComponent<BoxCollider2D>().size;
+        
     }
 
 
@@ -87,12 +96,7 @@ public class GenericPlayerMove : MonoBehaviour
         // -- Move Right
         if (Input.GetKey(KeyCode.D))
         {
-            //Vector2 Pos = PlayerRB.transform.position; //Define new Vectror2 to temperarily store the players position 
-            //Pos.x += moveSpeed * Time.deltaTime;       //Add the new speed to the temp variable (*Time.deltaTime = same movement regardless of FPS)
-            FaceRight = true;                          //Set RaceRight to True to flip the sprite 
-            //PlayerRB.transform.position = Pos;         //set the players transform to equal the temp position variable because...
-                                                       //PlayerRB.transform.position cannot be added to
-
+            FaceRight = true;                          //Set RaceRight to True to flip the sprite
             ResetAnimationBools();                     //Reset the animation bools for the next transition  
             PlayerAnimator.SetBool("Moving", true);   //Transition to Correct animation
         }
@@ -100,17 +104,11 @@ public class GenericPlayerMove : MonoBehaviour
         // -- Crouch 
         if (Input.GetKey(KeyCode.S))
         {
-            //float xVel = 0;
-            //PlayerRB.velocity = new Vector2(xVel, PlayerRB.velocity.y);
             ResetAnimationBools();                   //Reset the animation bools for the next transition  
             PlayerAnimator.SetBool("Crouch", true);        //Transition to Correct animation
         }
         if (Input.GetKeyUp(KeyCode.S))         // check for then the "S" key is released to re enable movement
         {
-           // float xVel = 0;
-            //PlayerRB.velocity = new Vector2(xVel, PlayerRB.velocity.y);
-
-            //moveSpeed = moveSpeedStore;                          //Move speed = 3 (Should be set to a variable to preserve data)
             ResetAnimationBools();                  //Reset the animation bools for the next transition  
             PlayerAnimator.SetBool("Idle", true);         //Transition to Correct animation
         }
@@ -138,6 +136,20 @@ public class GenericPlayerMove : MonoBehaviour
             Vector2 newVel = PlayerRB.velocity;
             newVel.y += GravityScale * Time.deltaTime;
             PlayerRB.velocity = newVel;
+        }
+
+        if (Crouching == true)
+        {
+            gameObject.GetComponent<BoxCollider2D>().enabled = false;
+            temp.GetComponent<BoxCollider2D>().enabled = true;
+
+            ResetAnimationBools();
+            PlayerAnimator.SetBool("Crouch", true);
+        }
+        else if (Crouching == false)
+        {
+            gameObject.GetComponent<BoxCollider2D>().enabled = true;
+            temp.GetComponent<BoxCollider2D>().enabled = false;
         }
     }
 
@@ -169,22 +181,24 @@ public class GenericPlayerMove : MonoBehaviour
         }
 
         // -- Crouch 
-        if (Input.GetKey(KeyCode.S))
+        if (Input.GetKeyDown(KeyCode.S))         // check for then the "S" key is released to re enable movement
         {
-            float xVel = 0;
-            PlayerRB.velocity = new Vector2(xVel, PlayerRB.velocity.y);
-            //ResetAnimationBools();                   //Reset the animation bools for the next transition  
-            //PlayerAnimator.SetBool("Crouch", true);        //Transition to Correct animation
+            moveSpeed = moveSpeed/2;
+            // PlayerRB.velocity = new Vector2(moveSpeed, PlayerRB.velocity.y);
+            Crouching = true;
+           
+            
+
+            // moveSpeed = moveSpeedStore;                          //Move speed = 3 (Should be set to a variable to preserve data)
         }
         if (Input.GetKeyUp(KeyCode.S))         // check for then the "S" key is released to re enable movement
         {
-            float xVel = 0;
-            PlayerRB.velocity = new Vector2(xVel, PlayerRB.velocity.y);
+            moveSpeed = moveSpeedStore;
+            //PlayerRB.velocity = new Vector2(moveSpeed, PlayerRB.velocity.y);
+            Crouching = false;
 
-            moveSpeed = moveSpeedStore;                          //Move speed = 3 (Should be set to a variable to preserve data)
-            //ResetAnimationBools();                  //Reset the animation bools for the next transition  
-            //PlayerAnimator.SetBool("Idle", true);         //Transition to Correct animation
         }
+        
         //Get the users input and check if it is the Space bar
         if (Input.GetKey(KeyCode.Space) && isGrounded == true)
         {

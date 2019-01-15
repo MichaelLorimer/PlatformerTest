@@ -55,6 +55,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets\_Script\BasicEnemyScript.cs" />
+    <Compile Include="Assets\_Script\CealingCollision.cs" />
     <Compile Include="Assets\_Script\GenericJumpingEnemy.cs" />
     <Compile Include="Assets\_Script\GenericPlayerMove.cs" />
     <Compile Include="Assets\_Script\GroundCheckScript.cs" />
