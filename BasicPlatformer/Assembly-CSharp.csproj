@@ -60,6 +60,7 @@
     <Compile Include="Assets\_Script\GenericPlayerMove.cs" />
     <Compile Include="Assets\_Script\GroundCheckScript.cs" />
     <Compile Include="Assets\_Script\ItemPickup.cs" />
+    <Compile Include="Assets\_Script\JumpTestScript.cs" />
     <Compile Include="Assets\_Script\KillOverTime.cs" />
     <Compile Include="Assets\_Script\ProjectileScript.cs" />
     <Compile Include="Assets\_Script\WallWalkEnemy.cs" />
